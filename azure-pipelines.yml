@@ -8,6 +8,7 @@ pool:
 
 variables:
   buildConfiguration: "Release"
+  service-connection: "servconnection-tailspin-space-game-rg"
 
 stages:
   - stage: "Build"
@@ -69,3 +70,29 @@ stages:
 
           - publish: "$(Build.ArtifactStagingDirectory)"
             artifact: drop
+
+  - stage: "Deploy"
+    displayName: "Deploy the web application"
+    dependsOn: Build
+    jobs:
+      - deployment: Deploy
+        displayName: "Deploy Web App"
+        pool:
+          vmImage: "ubuntu-20.04"
+          demands:
+            - npm
+        environment: dev
+        variables:
+          - group: Release
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+                - task: AzureWebApp@1
+                  displayName: 'Azure App Service Deploy: website'
+                  inputs:
+                    azureSubscription: $(service-connection)
+                    appName: '$(WebAppName)'
+                    package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
