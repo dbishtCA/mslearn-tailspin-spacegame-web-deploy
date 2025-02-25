@@ -69,11 +69,11 @@ stages:
       artifact: drop
 
 - stage: 'Dev'
-  displayName: 'Deploy to the dev environment
+  displayName: 'Deploy to the dev environment'
   dependsOn: Build
   condition: |
-    and
-    (
+   and
+   (
       succeeded(),
       eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
     )
@@ -91,7 +91,7 @@ stages:
           - download: current
             artifact: drop
           - task: AzureWebApp@1
-            displayName: 'Azure App Service Deploy: website'
+            displayName: 'Azure App Service Deploy website'
             inputs:
               azureSubscription: $(serviceconnection)
               appName: '$(WebAppNameDev)'
